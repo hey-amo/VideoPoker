@@ -7,7 +7,7 @@
 
 // A list of ranks in Video Poker
 
-enum HandRank: String {
+enum HandRank: String, CaseIterable {
     case royalFlush = "Royal Flush"
     case straightFlush = "Straight Flush"
     case fourOfAKind = "Four of a Kind"

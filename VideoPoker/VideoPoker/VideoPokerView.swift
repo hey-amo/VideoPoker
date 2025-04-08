@@ -22,15 +22,13 @@ struct VideoPokerView: View {
                 // MARK: Pay Table
                 DisclosureGroup("Pay Table", isExpanded: $isPayTableVisible) {
                     VStack(alignment: .leading, spacing: 5) {
-                        payTableRow("Royal Flush", 750)
-                        payTableRow("Straight Flush", 150)
-                        payTableRow("Four of a Kind", 75)
-                        payTableRow("Full House", 27)
-                        payTableRow("Flush", 18)
-                        payTableRow("Straight", 12)
-                        payTableRow("Three of a Kind", 9)
-                        payTableRow("Two Pair", 6)
-                        payTableRow("Jacks or Better", 3)
+                        
+                        // Loop through the Ranks and display the payout
+                        ForEach(HandRank.allCases.filter { $0 != .none }, id: \.self) { rank in
+                            let payout = PokerHandEvaluator.payoutTable[rank] ?? 0
+                            payTableRow(rank.rawValue, payout)
+                        }
+                        
                     }
                     .padding()
                 }
