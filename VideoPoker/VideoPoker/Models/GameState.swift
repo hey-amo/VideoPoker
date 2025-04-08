@@ -11,6 +11,6 @@ enum GameState {
     case holding       // Player is choosing cards to hold
     case drawing       // Drawing new cards
     case evaluating    // Evaluating final hand
-    case resultShown   // Showing win/loss result
+    case resultShown   // Showing win/loss result, Display result, ready for next hand
     case gameOver      // Optional: no more credits
 }
