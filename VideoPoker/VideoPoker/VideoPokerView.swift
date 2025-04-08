@@ -110,6 +110,7 @@ struct VideoPokerView: View {
                 .bold()
         }
     }
+    
 }
 
 struct CardView: View {

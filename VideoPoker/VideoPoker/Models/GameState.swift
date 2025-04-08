@@ -6,9 +6,11 @@
 //
 
 enum GameState {
-    case idle
-    case playerTurn
-    case dealerTurn
-    case evaluating
-    case gameOver
+    case idle          // Bet setting phase, table is empty
+    case dealing       // Cards are being dealt
+    case holding       // Player is choosing cards to hold
+    case drawing       // Drawing new cards
+    case evaluating    // Evaluating final hand
+    case resultShown   // Showing win/loss result
+    case gameOver      // Optional: no more credits
 }
