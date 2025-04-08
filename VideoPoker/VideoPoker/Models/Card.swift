@@ -5,26 +5,43 @@
 //  Created by Amarjit on 08/04/2025.
 //
 
-struct Card {
-    // Suit enumerated
-    enum Suit: Character, CaseIterable {
-        case spades = "♠", hearts = "♡", diamonds = "♢", clubs = "♣"
-    }
-    
-    enum Rank: Int, CaseIterable {
-      case two = 2, three, four, five, six, seven, eight, nine, ten
-      case jack, queen, king
-      case ace
-    }
-    
-    let rank: Rank, suit : Suit
+enum Suit: String, CaseIterable {
+    case hearts = "♥︎", diamonds = "♦︎", clubs = "♣︎", spades = "♠︎"
 }
+
+enum Rank: Int, Comparable, CaseIterable {
+    case two = 2, three, four, five, six, seven, eight, nine, ten
+    case jack, queen, king, ace
+
+    var symbol: String {
+        switch self {
+        case .jack: return "J"
+        case .queen: return "Q"
+        case .king: return "K"
+        case .ace: return "A"
+        default: return "\(self.rawValue)"
+        }
+    }
+
+    static func < (lhs: Rank, rhs: Rank) -> Bool {
+        lhs.rawValue < rhs.rawValue
+    }
+}
+
+struct Card: Hashable {
+    let rank: Rank
+    let suit: Suit
+}
+
+
+
+// MARK: Card Descriptions
 
 //
 // Card description extensions
 //
 
-extension Card.Suit : CustomStringConvertible {
+extension Suit : CustomStringConvertible {
     // map the output back to the key
     // there's probably a better way to do this
     var description: String {
@@ -39,7 +56,7 @@ extension Card.Suit : CustomStringConvertible {
     }
 }
 
-extension Card.Rank : CustomStringConvertible {
+extension Rank : CustomStringConvertible {
     var description: String {
         switch self {
         case .two, .three, .four, .five, .six, .seven,.eight,.nine,.ten:
@@ -62,4 +79,3 @@ extension Card : CustomDebugStringConvertible {
         return output
     }
 }
-
