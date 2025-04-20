@@ -12,7 +12,6 @@ struct VideoPokerView: View {
     @StateObject var viewModel = VideoPokerViewModel()
     @State private var credits: Int = 100
     @State private var bet: Int = 3
-    @State private var isPayTableVisible: Bool = true
 
     var body: some View {
         
@@ -21,46 +20,11 @@ struct VideoPokerView: View {
             VStack(spacing: 20) {
                 
                 // MARK: Payout Table
-                VStack {
-                    HStack {
-                        Text("Payout Table")
-                            .foregroundColor(.white)
-                        Spacer()
-                        Button(action: {
-                            isPayTableVisible.toggle()
-                        }) {
-                            Image(systemName: "chevron.up")
-                                .foregroundColor(.white)
-                                .rotationEffect(.degrees(isPayTableVisible ? 0 : 180))
-                                .animation(.easeInOut, value: isPayTableVisible)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top)
-                    
-                    if isPayTableVisible {
-                        VStack(alignment: .leading, spacing: 5) {
-                            ForEach(HandRank.allCases.filter { $0 != .none }, id: \.self) { rank in
-                                let payout = PokerHandEvaluator.payoutTable[rank] ?? 0
-                                payTableRow(rank.rawValue, payout)
-                            }
-                        }
-                        .padding()
-                    }
-                }
-                .background(Color.blue)
-                .cornerRadius(10)
-                .padding(.horizontal)
+                PayoutTableView(viewModel: viewModel)
 
                 // ------
                 // MARK: Credits and Bet
-                HStack {
-                    Text("Credits: \(viewModel.credits)")
-                    Spacer()
-                    Text("Bet: \(viewModel.bet)")
-                }
-                .font(.headline)
-                .padding(.horizontal)
+                CreditsAndBetView()
 
                 // ------
                 // MARK: Card Row
@@ -73,17 +37,18 @@ struct VideoPokerView: View {
                     CardView(rank: "10", suit: "♦︎")
                 }
                 .padding()
-                 */
+                
                 
                 // Card Backs
                 HStack(spacing: 15) {
                     ForEach(0..<5, id: \.self) { _ in
                         CardView(card: nil, isBack: true)
                     }
-                }.padding()
+                }.padding() */
 
                 // ------
                 // MARK: Bet Buttons
+                /*
                 HStack(spacing: 20) {
                     Button(action: {
                         print("Decrease Bet")
@@ -110,6 +75,7 @@ struct VideoPokerView: View {
                             .clipShape(Circle())
                     }.disabled(viewModel.gameState != .idle)
                 }.padding(.horizontal)
+                 */
 
                 // ------
                 // MARK: Deal Button
@@ -141,16 +107,6 @@ struct VideoPokerView: View {
         }
     }
 
-    private func payTableRow(_ name: String, _ value: Int) -> some View {
-        HStack {
-            Text(name)
-                .foregroundColor(.white)
-            Spacer()
-            Text("\(value)")
-                .foregroundColor(.white)
-                .bold()
-        }
-    }
     
 }
 
@@ -181,6 +137,74 @@ struct CardView: View {
         }
     }
 }
+
+// MARK: Payout Table View
+
+struct PayoutTableView: View {
+    @StateObject var viewModel = VideoPokerViewModel()
+    @State private var isPayTableVisible: Bool = true
+    
+    var body: some View {
+        VStack {
+            HStack {
+                Text("Payout Table")
+                    .foregroundColor(.white)
+                Spacer()
+                Button(action: {
+                    isPayTableVisible.toggle()
+                }) {
+                    Image(systemName: "chevron.up")
+                        .foregroundColor(.white)
+                        .rotationEffect(.degrees(isPayTableVisible ? 0 : 180))
+                        .animation(.easeInOut, value: isPayTableVisible)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.top)
+            
+            if isPayTableVisible {
+                VStack(alignment: .leading, spacing: 5) {
+                    ForEach(HandRank.allCases.filter { $0 != .none }, id: \.self) { rank in
+                        let payout = PokerHandEvaluator.payoutTable[rank] ?? 0
+                        payTableRow(rank.rawValue, payout)
+                    }
+                }
+                .padding()
+            }
+        }
+        .background(Color.blue)
+        .cornerRadius(10)
+        .padding(.horizontal)
+    }
+    
+    
+    private func payTableRow(_ name: String, _ value: Int) -> some View {
+        HStack {
+            Text(name)
+                .foregroundColor(.white)
+            Spacer()
+            Text("\(value)")
+                .foregroundColor(.white)
+                .bold()
+        }
+    }
+}
+
+// MARK: Credits and Bet View
+
+struct CreditsAndBetView: View {
+    var viewModel = VideoPokerViewModel()
+    var body: some View {
+        HStack {
+            Text("Credits: \(viewModel.credits)")
+            Spacer()
+            Text("Bet: \(viewModel.bet)")
+        }
+        .font(.headline)
+        .padding(.horizontal)
+    }
+}
+
 
 #Preview {
     VideoPokerView()
