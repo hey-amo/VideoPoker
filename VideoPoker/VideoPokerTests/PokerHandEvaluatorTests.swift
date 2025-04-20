@@ -23,13 +23,7 @@ final class PokerHandEvaluatorTests: XCTestCase {
     
     // MARK: Tests
     
-    /// Test Royal Flush
-    /* There are only four different ways of completing this hand.
-    Hearts: A♥ K♥ Q♥ J♥ 10♥
-    Spades: A♠ K♠ Q♠ J♠ 10♠
-    Diamonds: A♦ K♦ Q♦ J♦ 10♦
-    Clubs: A♣ K♣ Q♣ J♣ 10♣
-    */
+    /// Royal Flush
     func testRoyalFlush() {
         let hand = createHand([
             (.ten, .hearts),
@@ -39,12 +33,52 @@ final class PokerHandEvaluatorTests: XCTestCase {
             (.ace, .hearts)
         ])
         
-        // Evaluate
+        // Evaluate hand
         let result = PokerHandEvaluator.evaluate(hand: hand)
         
         // Assert
         XCTAssertEqual(result.rank, .royalFlush)
         XCTAssertEqual(result.payoutMultiplier, 750)
     }
+
+    /// Straight flush
+    func testStraightFlush() {
+        // Create hand
+        let hand = createHand([
+            (.six, .clubs),
+            (.seven, .clubs),
+            (.eight, .clubs),
+            (.nine, .clubs),
+            (.ten, .clubs)
+        ])
+        
+        // Evaluate hand
+        let result = PokerHandEvaluator.evaluate(hand: hand)
+        
+        // Assert
+        XCTAssertEqual(result.rank, .straightFlush)
+        XCTAssertEqual(result.payoutMultiplier, 150)
+    }
+    
+    /// Four-of-a-kind
+    func testFourOfAKind() {
+        // Create hand
+        let hand = createHand([
+            (.queen, .hearts),
+            (.queen, .diamonds),
+            (.queen, .clubs),
+            (.queen, .spades),
+            (.king, .hearts)
+        ])
+        
+        // Evaluate
+        let result = PokerHandEvaluator.evaluate(hand: hand)
+        
+        // Assert
+        XCTAssertEqual(result.rank, .fourOfAKind)
+        XCTAssertEqual(result.payoutMultiplier, 75)
+    }
+    
+    
 
 }
