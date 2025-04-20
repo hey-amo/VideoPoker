@@ -12,7 +12,6 @@ import SwiftData
 struct VideoPokerApp: App {
     var body: some Scene {
         WindowGroup {
-            //ContentView()
             VideoPokerView()
         }
     }

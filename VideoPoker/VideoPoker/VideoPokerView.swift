@@ -21,21 +21,34 @@ struct VideoPokerView: View {
             VStack(spacing: 20) {
                 
                 // MARK: Payout Table
-                DisclosureGroup("Payout Table", isExpanded: $isPayTableVisible) {
-                    VStack(alignment: .leading, spacing: 5) {
-                        
-                        // Loop through the Ranks and display the payout
-                        ForEach(HandRank.allCases.filter { $0 != .none }, id: \.self) { rank in
-                            let payout = PokerHandEvaluator.payoutTable[rank] ?? 0
-                            payTableRow(rank.rawValue, payout)
+                VStack {
+                    HStack {
+                        Text("Payout Table")
+                            .foregroundColor(.white)
+                        Spacer()
+                        Button(action: {
+                            isPayTableVisible.toggle()
+                        }) {
+                            Image(systemName: "chevron.up")
+                                .foregroundColor(.white)
+                                .rotationEffect(.degrees(isPayTableVisible ? 0 : 180))
+                                .animation(.easeInOut, value: isPayTableVisible)
                         }
-                        
                     }
-                    .padding()
+                    .padding(.horizontal)
+                    .padding(.top)
+                    
+                    if isPayTableVisible {
+                        VStack(alignment: .leading, spacing: 5) {
+                            ForEach(HandRank.allCases.filter { $0 != .none }, id: \.self) { rank in
+                                let payout = PokerHandEvaluator.payoutTable[rank] ?? 0
+                                payTableRow(rank.rawValue, payout)
+                            }
+                        }
+                        .padding()
+                    }
                 }
-                .padding()
                 .background(Color.blue)
-                .foregroundColor(.white)
                 .cornerRadius(10)
                 .padding(.horizontal)
 
@@ -101,19 +114,26 @@ struct VideoPokerView: View {
                 // ------
                 // MARK: Deal Button
                 Button(action: {
-                    print("Deal button pressed!")
                     viewModel.deal()
                 }) {
                     Text("Deal")
                         .font(.headline)
                         .padding()
                         .frame(maxWidth: .infinity)
-                        .background(Color.green)
+                        .background(viewModel.credits >= viewModel.bet ? Color.green : Color.gray)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
                 .padding(.horizontal)
-                .disabled(viewModel.credits < viewModel.bet || viewModel.gameState != .idle)
+                .disabled(viewModel.credits < viewModel.bet)
+
+                // Add error message display if needed
+                if let errorMessage = viewModel.errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                        .font(.caption)
+                        .padding(.horizontal)
+                }
 
                 Spacer()
             }
@@ -124,8 +144,10 @@ struct VideoPokerView: View {
     private func payTableRow(_ name: String, _ value: Int) -> some View {
         HStack {
             Text(name)
+                .foregroundColor(.white)
             Spacer()
             Text("\(value)")
+                .foregroundColor(.white)
                 .bold()
         }
     }
