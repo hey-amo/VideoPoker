@@ -132,28 +132,7 @@ struct VideoPokerView: View {
     
 }
 
-/*
-struct CardView: View {
-    let rank: String
-    let suit: String
-
-    var body: some View {
-        VStack {
-            Text(rank)
-                .font(.title)
-            Text(suit)
-                .font(.title2)
-        }
-        .frame(width: 50, height: 70)
-        .background(Color.white)
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.black, lineWidth: 1)
-        )
-    }
-}
-*/
+// MARK: CardView
 
 struct CardView: View {
     let card: Card?
