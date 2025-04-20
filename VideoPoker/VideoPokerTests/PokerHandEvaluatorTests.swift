@@ -116,4 +116,145 @@ final class PokerHandEvaluatorTests: XCTestCase {
         XCTAssertEqual(result.payoutMultiplier, 18)
     }
 
+    func testStraight() {
+            // Create hand
+            let hand = createHand([
+                (.four, .hearts),
+                (.five, .diamonds),
+                (.six, .clubs),
+                (.seven, .spades),
+                (.eight, .hearts)
+            ])
+            
+            // Evaluate hand
+            let result = PokerHandEvaluator.evaluate(hand: hand)
+            
+            // Assert
+            XCTAssertEqual(result.rank, .straight)
+            XCTAssertEqual(result.payoutMultiplier, 12)
+        }
+        
+        func testWheelStraight() {
+            // Create hand - Testing Ace-2-3-4-5 straight
+            let hand = createHand([
+                (.ace, .hearts),
+                (.two, .diamonds),
+                (.three, .clubs),
+                (.four, .spades),
+                (.five, .hearts)
+            ])
+            
+            // Evaluate hand
+            let result = PokerHandEvaluator.evaluate(hand: hand)
+            
+            // Assert
+            XCTAssertEqual(result.rank, .straight)
+            XCTAssertEqual(result.payoutMultiplier, 12)
+        }
+        
+        func testThreeOfAKind() {
+            // Create hand
+            let hand = createHand([
+                (.jack, .hearts),
+                (.jack, .diamonds),
+                (.jack, .clubs),
+                (.three, .spades),
+                (.king, .hearts)
+            ])
+            
+            // Evaluate hand
+            let result = PokerHandEvaluator.evaluate(hand: hand)
+            
+            // Assert
+            XCTAssertEqual(result.rank, .threeOfAKind)
+            XCTAssertEqual(result.payoutMultiplier, 9)
+        }
+        
+        func testTwoPair() {
+            // Create hand
+            let hand = createHand([
+                (.nine, .hearts),
+                (.nine, .diamonds),
+                (.queen, .clubs),
+                (.queen, .spades),
+                (.ace, .hearts)
+            ])
+            
+            // Evaluate hand
+            let result = PokerHandEvaluator.evaluate(hand: hand)
+            
+            // Assert
+            XCTAssertEqual(result.rank, .twoPair)
+            XCTAssertEqual(result.payoutMultiplier, 6)
+        }
+        
+        func testJacksOrBetter() {
+            // Create hand
+            let hand = createHand([
+                (.jack, .hearts),
+                (.jack, .diamonds),
+                (.three, .clubs),
+                (.seven, .spades),
+                (.ace, .hearts)
+            ])
+            
+            // Evaluate hand
+            let result = PokerHandEvaluator.evaluate(hand: hand)
+            
+            // Assert
+            XCTAssertEqual(result.rank, .jacksOrBetter)
+            XCTAssertEqual(result.payoutMultiplier, 3)
+        }
+        
+        func testPairLowerThanJacks() {
+            // Create hand
+            let hand = createHand([
+                (.ten, .hearts),
+                (.ten, .diamonds),
+                (.three, .clubs),
+                (.seven, .spades),
+                (.ace, .hearts)
+            ])
+            
+            // Evaluate hand
+            let result = PokerHandEvaluator.evaluate(hand: hand)
+            
+            // Assert
+            XCTAssertEqual(result.rank, .none)
+            XCTAssertEqual(result.payoutMultiplier, 0)
+        }
+        
+        func testNoWinningHand() {
+            // Create hand
+            let hand = createHand([
+                (.two, .hearts),
+                (.five, .diamonds),
+                (.seven, .clubs),
+                (.jack, .spades),
+                (.ace, .hearts)
+            ])
+            
+            // Evaluate hand
+            let result = PokerHandEvaluator.evaluate(hand: hand)
+            
+            // Assert
+            XCTAssertEqual(result.rank, .none)
+            XCTAssertEqual(result.payoutMultiplier, 0)
+        }
+        
+        func testInvalidHandSize() {
+            // Create hand
+            let hand = createHand([
+                (.two, .hearts),
+                (.five, .diamonds),
+                (.seven, .clubs)
+            ])
+            
+            // Evaluate hand
+            let result = PokerHandEvaluator.evaluate(hand: hand)
+            
+            // Assert
+            XCTAssertEqual(result.rank, .none)
+            XCTAssertEqual(result.payoutMultiplier, 0)
+        }
 }
