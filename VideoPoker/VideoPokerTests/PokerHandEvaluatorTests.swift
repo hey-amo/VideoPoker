@@ -79,6 +79,41 @@ final class PokerHandEvaluatorTests: XCTestCase {
         XCTAssertEqual(result.payoutMultiplier, 75)
     }
     
+    /// Full house
+    func testFullHouse() {
+        // Create hand
+        let hand = createHand([
+            (.ten, .hearts),
+            (.ten, .diamonds),
+            (.ten, .clubs),
+            (.king, .hearts),
+            (.king, .diamonds)
+        ])
+        
+        // Evaluate
+        let result = PokerHandEvaluator.evaluate(hand: hand)
+        
+        // Assert
+        XCTAssertEqual(result.rank, .fullHouse)
+        XCTAssertEqual(result.payoutMultiplier, 27)
+    }
     
+    func testFlush() {
+        // Create hand
+        let hand = createHand([
+            (.two, .spades),
+            (.five, .spades),
+            (.seven, .spades),
+            (.jack, .spades),
+            (.king, .spades)
+        ])
+        
+        // Evaluate
+        let result = PokerHandEvaluator.evaluate(hand: hand)
+        
+        // Assert
+        XCTAssertEqual(result.rank, .flush)
+        XCTAssertEqual(result.payoutMultiplier, 18)
+    }
 
 }
