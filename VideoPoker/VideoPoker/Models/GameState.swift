@@ -14,3 +14,17 @@ enum GameState {
     case resultShown   // Showing win/loss result, Display result, ready for next hand
     case gameOver      // Optional: no more credits
 }
+
+extension GameState: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .idle: return "IDLE"
+        case .dealing: return "DEALING"
+        case .holding: return "HOLDING"
+        case .drawing: return "DRAWING"
+        case .evaluating: return "EVALUATING"
+        case .resultShown: return "RESULT"
+        case .gameOver: return "GAMEOVER"
+        }
+    }
+}

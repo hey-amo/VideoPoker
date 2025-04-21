@@ -15,4 +15,19 @@ class GameLogger {
     private init() {
         self.logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "VideoPoker", category: "GameState")
     }
+    
+    func logState(_ state: GameState, message: String) {
+        let stateString = String(describing: state)
+        logger.info("🎮 [\(stateString)] \(message)")
+    }
+
+    func logError(_ state: GameState, message: String) {
+        let stateString = String(describing: state)
+        logger.error("❌ [\(stateString)] \(message)")
+    }
+
+    func logValidation(_ state: GameState, message: String) {
+        let stateString = String(describing: state)
+        logger.debug("✓ [\(stateString)] \(message)")
+    }
 }
