@@ -24,6 +24,58 @@ class VideoPokerViewModel: ObservableObject {
         resetDeck()
     }
     
+    // MARK: - Clear Game State
+    func clearGameState() {
+        cards = []
+        heldCards = []
+        handResult = nil
+        errorMessage = nil
+    }
+    
+    func validateDeck() -> Bool {
+        // Check deck size
+        guard deck.count == 52 else {
+            return false
+        }
+        
+        // Check for duplicates
+        let uniqueCards = Set(deck)
+        guard uniqueCards.count == 52 else {
+            return false
+        }
+        
+        // Verify deck is shuffled (basic check - cards aren't in order)
+        let sortedDeck = deck.sorted { ($0.suit.rawValue, $0.rank.rawValue) < ($1.suit.rawValue, $1.rank.rawValue) }
+        guard deck != sortedDeck else {
+            return false
+        }
+        
+        return true
+    }
+    
+    func validateGameReadyState() -> Bool {
+        // Check cards array is empty
+        guard cards.isEmpty else {
+            return false
+        }
+        
+        // Check held cards are cleared
+        guard heldCards.isEmpty else {
+            return false
+        }
+        
+        // Check no previous hand result
+        guard handResult == nil else {
+            return false
+        }
+        
+        // Check error message is cleared
+        guard errorMessage == nil else {
+            return false
+        }
+        return true
+    }
+    
     // MARK: - Public Methods
     
     func increaseBet() {
@@ -58,11 +110,14 @@ class VideoPokerViewModel: ObservableObject {
     // MARK: - Helper Methods
     
     func resetDeck() {
+        print ("Shuffling deck")
         deck = Suit.allCases.flatMap { suit in
             Rank.allCases.map { rank in
                 Card(rank: rank, suit: suit)
             }
-        }.shuffled()
+        }
+        deck.shuffle()
+        print ("Shuffled deck")
     }
     
     func toggleHold(index: Int) {

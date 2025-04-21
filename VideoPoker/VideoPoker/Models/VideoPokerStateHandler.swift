@@ -11,27 +11,54 @@ protocol VideoPokerStateHandling {
 }
 
 class VideoPokerStateHandler: VideoPokerStateHandling {
+    private let logger = GameLogger.shared
+    
     // MARK: - Idle State
     func handleIdle(viewModel: VideoPokerViewModel) -> Bool {
+        logger.logState(.idle, message: "Starting `idle` state")
+
         // Validate current state
-        guard viewModel.gameState == .idle else { return false }
+        guard viewModel.gameState == .idle else {
+            logger.logError(.idle, message: "Invalid state: \(viewModel.gameState)")
+            return false
+        }
+        logger.logValidation(.idle, message: "Current state is: `idle`")
         
         // Validate player has enough credits for current bet
         guard viewModel.credits >= viewModel.bet else {
+            logger.logError(.idle, message: "Insufficient credits: \(viewModel.credits) < \(viewModel.bet)")
             viewModel.gameState = .gameOver
             return false
         }
+        logger.logValidation(.idle, message: "Player has sufficient credits")
         
         // Ensure bet is within valid range (1-5)
-        guard viewModel.bet >= 1 && viewModel.bet <= 5 else { return false }
+        guard viewModel.bet >= 1 && viewModel.bet <= 5 else {
+            logger.logError(.idle, message: "Invalid bet amount: \(viewModel.bet)")
+            return false
+        }
+        logger.logValidation(.idle, message: "Bet amount: OK")
+
+        // Clear any previous game state
+        viewModel.clearGameState()
+        logger.logValidation(.idle, message: "Previous game state cleared")
         
-        // Reset and shuffle deck
+        // Reset deck and shuffle deck
         viewModel.resetDeck()
+        guard viewModel.validateDeck() else {
+            logger.logError(.idle, message: "Deck validation failed")
+            return false
+        }
+        logger.logValidation(.idle, message: "Deck reset: OK")
         
-        // Clear any existing cards and holds
-        viewModel.cards = []
-        viewModel.heldCards = []
+        // Validate ready state
+        guard viewModel.validateGameReadyState() else {
+            logger.logError(.idle, message: "Game ready state validation failed")
+            return false
+        }
         
+        // Game is OK to start
+        logger.logState(.idle, message: "Game is ready to start")
         return true
     }
     
