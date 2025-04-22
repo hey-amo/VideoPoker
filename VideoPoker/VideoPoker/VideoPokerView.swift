@@ -9,25 +9,19 @@
 import SwiftUI
 
 struct VideoPokerView: View {
-    @StateObject var viewModel = VideoPokerViewModel()
-    @State private var credits: Int = 100
-    @State private var bet: Int = 3
-
+    @StateObject private var viewModel = VideoPokerViewModel()
+    
     var body: some View {
-        
         ScrollView(.vertical) {
-            
             VStack(spacing: 20) {
+                GameStatusView(viewModel: viewModel)
+                    .padding(.top)
                 
-                // MARK: Payout Table
                 PayoutTableView(viewModel: viewModel)
-
-                // ------
-                // MARK: Credits and Bet
-                CreditsAndBetView()
-
-                // ------
-                // MARK: Card Row
+                
+                CreditsAndBetView(viewModel: viewModel)
+                
+                // Card Row
                 HStack(spacing: 15) {
                     ForEach(0..<5) { index in
                         if index < viewModel.cards.count {
@@ -47,87 +41,86 @@ struct VideoPokerView: View {
                 }
                 .padding()
                 .animation(.easeInOut(duration: 0.3), value: viewModel.cards.count)
-
-                // ------
-                // MARK: +/- Bet Buttons
                 
-                HStack(spacing: 20) {
-                    DecreaseBetButtonView(viewModel: viewModel)
-                    IncreaseBetButtonView(viewModel: viewModel)
-                }.padding(.horizontal)
+                if viewModel.gameState == .idle {
+                    BetControlsView(viewModel: viewModel)
+                }
                 
-                // ------
-                // MARK: Deal Button
                 DealButtonView(viewModel: viewModel)
-
-                // Add error message display if needed
+                
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .foregroundColor(.red)
                         .font(.caption)
                         .padding(.horizontal)
                 }
-
+                
                 Spacer()
             }
-            .padding(.top)
         }
     }
-    
 }
 
 // MARK: Buttons
 
 struct DealButtonView: View {
-    @StateObject var viewModel = VideoPokerViewModel()
+    @ObservedObject var viewModel: VideoPokerViewModel
+    
     var body: some View {
         Button(action: {
             viewModel.deal()
         }) {
-            Text("Deal")
+            Text(viewModel.gameState == .idle ? "Deal" : "...")
                 .font(.headline)
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(viewModel.credits >= viewModel.bet ? Color.green : Color.gray)
+                .background(
+                    viewModel.gameState == .idle && viewModel.credits >= viewModel.bet 
+                    ? Color.green 
+                    : Color.gray
+                )
                 .foregroundColor(.white)
                 .cornerRadius(10)
         }
         .padding(.horizontal)
-        .disabled(viewModel.credits < viewModel.bet)
+        .disabled(viewModel.gameState != .idle || viewModel.credits < viewModel.bet)
     }
 }
 
-struct IncreaseBetButtonView: View {
-    @StateObject var viewModel = VideoPokerViewModel()
+struct BetControlsView: View {
+    @ObservedObject var viewModel: VideoPokerViewModel
+    
     var body: some View {
-        Button(action: {
-            print("Increase Bet")
-            viewModel.increaseBet()
-        }) {
-            Text("+")
-                .font(.title)
-                .frame(width: 44, height: 44)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .clipShape(Circle())
-        }.disabled(viewModel.gameState != .idle)
-    }
-}
-
-struct DecreaseBetButtonView: View {
-    @StateObject var viewModel = VideoPokerViewModel()
-    var body: some View {
-        Button(action: {
-            print("Decrease Bet")
-            viewModel.decreaseBet()
-        }) {
-            Text("-")
-                .font(.title)
-                .frame(width: 44, height: 44)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .clipShape(Circle())
-        }.disabled(viewModel.gameState != .idle || viewModel.bet <= 1)
+        HStack(spacing: 20) {
+            // Decrease Button
+            Button(action: { viewModel.decreaseBet() }) {
+                Text("-")
+                    .font(.title)
+                    .frame(width: 44, height: 44)
+                    .background(viewModel.gameState == .idle ? Color.blue : Color.gray)
+                    .foregroundColor(.white)
+                    .clipShape(Circle())
+            }
+            .disabled(viewModel.gameState != .idle || viewModel.bet <= 1)
+            
+            // Current Bet Display
+            Text("\(viewModel.bet)")
+                .font(.title2)
+                .bold()
+                .frame(width: 44)
+            
+            // Increase Button
+            Button(action: { viewModel.increaseBet() }) {
+                Text("+")
+                    .font(.title)
+                    .frame(width: 44, height: 44)
+                    .background(viewModel.gameState == .idle ? Color.blue : Color.gray)
+                    .foregroundColor(.white)
+                    .clipShape(Circle())
+            }
+            .disabled(viewModel.gameState != .idle || viewModel.bet >= 5)
+        }
+        .padding(.horizontal)
     }
 }
 
@@ -162,7 +155,7 @@ struct CardView: View {
 // MARK: Payout Table View
 
 struct PayoutTableView: View {
-    @StateObject var viewModel = VideoPokerViewModel()
+    @ObservedObject var viewModel: VideoPokerViewModel
     @State private var isPayTableVisible: Bool = true
     
     var body: some View {
@@ -214,18 +207,87 @@ struct PayoutTableView: View {
 // MARK: Credits and Bet View
 
 struct CreditsAndBetView: View {
-    var viewModel = VideoPokerViewModel()
+    @ObservedObject var viewModel: VideoPokerViewModel
+    
     var body: some View {
         HStack {
-            Text("Credits: \(viewModel.credits)")
+            VStack(alignment: .leading) {
+                Text("Credits")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                Text("\(viewModel.credits)")
+                    .font(.headline)
+            }
+            
             Spacer()
-            Text("Bet: \(viewModel.bet)")
+            
+            VStack(alignment: .trailing) {
+                Text("Current Bet")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                Text("\(viewModel.bet)")
+                    .font(.headline)
+            }
         }
-        .font(.headline)
         .padding(.horizontal)
     }
 }
 
+struct GameStatusView: View {
+    @ObservedObject var viewModel: VideoPokerViewModel
+    
+    var statusMessage: String {
+        switch viewModel.gameState {
+        case .idle:
+            return viewModel.credits >= viewModel.bet 
+                ? "Ready to Deal - Bet: \(viewModel.bet)" 
+                : "Insufficient Credits"
+        case .preparingToDeal:
+            return "Preparing..."
+        case .dealing:
+            return "Dealing Cards..."
+        case .holding:
+            return "Select Cards to Hold"
+        case .drawing:
+            return "Drawing New Cards..."
+        case .evaluating:
+            return "Evaluating Hand..."
+        case .resultShown:
+            return "Hand Complete"
+        case .gameOver:
+            return "Game Over"
+        }
+    }
+    
+    var statusColor: Color {
+        switch viewModel.gameState {
+        case .idle:
+            return viewModel.credits >= viewModel.bet ? .green : .red
+        case .gameOver:
+            return .red
+        default:
+            return .primary
+        }
+    }
+    
+    var body: some View {
+        HStack {
+            // Status indicator
+            Circle()
+                .fill(statusColor)
+                .frame(width: 10, height: 10)
+            
+            // Status message
+            Text(statusMessage)
+                .font(.caption)
+                .foregroundColor(statusColor)
+            
+            Spacer()
+        }
+        .padding(.horizontal)
+        .animation(.easeInOut, value: viewModel.gameState)
+    }
+}
 
 #Preview {
     VideoPokerView()

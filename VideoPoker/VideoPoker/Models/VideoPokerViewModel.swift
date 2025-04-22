@@ -33,23 +33,42 @@ class VideoPokerViewModel: ObservableObject {
     }
     
     func validateDeck() -> Bool {
-        // Check deck size
+        // 1. Check deck size
         guard deck.count == 52 else {
+            errorMessage = "Invalid deck size"
             return false
         }
         
-        // Check for duplicates
+        // 2. Check for duplicates using Set
         let uniqueCards = Set(deck)
         guard uniqueCards.count == 52 else {
+            errorMessage = "Duplicate cards found in deck"
             return false
         }
         
-        // Verify deck is shuffled (basic check - cards aren't in order)
+        // 3. Validate card values
+        for card in deck {
+            // Validate rank is within valid range
+            guard card.rank.rawValue >= 2 && card.rank.rawValue <= 14 else {
+                errorMessage = "Invalid card rank found"
+                return false
+            }
+            
+            // Validate suit is valid
+            guard Suit.allCases.contains(card.suit) else {
+                errorMessage = "Invalid card suit found"
+                return false
+            }
+        }
+        
+        // 4. Verify deck is shuffled (basic check - cards aren't in order)
         let sortedDeck = deck.sorted { ($0.suit.rawValue, $0.rank.rawValue) < ($1.suit.rawValue, $1.rank.rawValue) }
         guard deck != sortedDeck else {
+            errorMessage = "Deck is not properly shuffled"
             return false
         }
         
+        errorMessage = nil
         return true
     }
     
