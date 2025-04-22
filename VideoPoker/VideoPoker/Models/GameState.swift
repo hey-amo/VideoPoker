@@ -7,6 +7,7 @@
 
 enum GameState {
     case idle          // Bet setting phase, table is empty
+    case preparingToDeal // Transition from idle to dealing
     case dealing       // Cards are being dealt
     case holding       // Player is choosing cards to hold
     case drawing       // Drawing new cards
@@ -19,6 +20,7 @@ extension GameState: CustomStringConvertible {
     var description: String {
         switch self {
         case .idle: return "IDLE"
+        case .preparingToDeal: return "PREPARING"
         case .dealing: return "DEALING"
         case .holding: return "HOLDING"
         case .drawing: return "DRAWING"
