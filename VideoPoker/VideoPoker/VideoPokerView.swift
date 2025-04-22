@@ -27,20 +27,20 @@ struct VideoPokerView: View {
                         if index < viewModel.cards.count {
                             CardView(
                                 card: viewModel.cards[index],
-                                isBack: viewModel.gameState == .dealing
+                                isBack: viewModel.gameState == .dealing && index > viewModel.dealingCardIndex
                             )
                             .transition(.asymmetric(
                                 insertion: .scale.combined(with: .slide),
                                 removal: .scale
                             ))
+                            .animation(.easeInOut(duration: 0.3), value: viewModel.dealingCardIndex)
                         } else {
                             CardView(card: nil, isBack: true)
-                                .opacity(viewModel.gameState == .dealing ? 0.5 : 1.0)
+                                .opacity(0.5)
                         }
                     }
                 }
                 .padding()
-                .animation(.easeInOut(duration: 0.3), value: viewModel.cards.count)
                 
                 if viewModel.gameState == .idle {
                     BetControlsView(viewModel: viewModel)
@@ -70,7 +70,8 @@ struct DealButtonView: View {
         Button(action: {
             viewModel.deal()
         }) {
-            Text(viewModel.gameState == .idle ? "Deal" : "...")
+            //Text(viewModel.gameState == .idle ? "Deal" : "...")
+            Text("Deal")
                 .font(.headline)
                 .padding()
                 .frame(maxWidth: .infinity)

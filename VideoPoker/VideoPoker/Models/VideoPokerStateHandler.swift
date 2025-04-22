@@ -67,12 +67,29 @@ class VideoPokerStateHandler: VideoPokerStateHandling {
         return true
     }
     
-    // MARK: - Other States (Placeholder implementations)
+    // MARK: - Dealing State
     func handleDealing(viewModel: VideoPokerViewModel) -> Bool {
-        // Will implement later
-        return false
+        logger.logState(.dealing, message: "Starting dealing state")
+        
+        // Validate we're in the correct state
+        guard viewModel.gameState == .dealing else {
+            viewModel.errorMessage = "Invalid state for dealing"
+            logger.logError(.dealing, message: "Invalid state: \(viewModel.gameState)")
+            return false
+        }
+        
+        // Validate we have enough cards
+        guard viewModel.validateDeck() else {
+            viewModel.errorMessage = "Not enough cards in deck"
+            logger.logError(.dealing, message: "Deck validation failed")
+            return false
+        }
+        
+        logger.logState(.dealing, message: "Dealing cards")
+        return true
     }
     
+    // MARK: - Other States (Placeholder implementations)
     func handleHolding(viewModel: VideoPokerViewModel) -> Bool {
         // Will implement later
         return false
