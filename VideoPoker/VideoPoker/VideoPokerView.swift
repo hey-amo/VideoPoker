@@ -270,7 +270,7 @@ struct GameStatusView: View {
     
     var body: some View {
         HStack {
-            // Game state indicator
+            // Status indicator
             Circle()
                 .fill(statusColor)
                 .frame(width: 10, height: 10)
