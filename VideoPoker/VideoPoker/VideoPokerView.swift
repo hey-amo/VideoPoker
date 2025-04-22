@@ -242,6 +242,8 @@ struct GameStatusView: View {
             return viewModel.credits >= viewModel.bet 
                 ? "Ready to Deal - Bet: \(viewModel.bet)" 
                 : "Insufficient Credits"
+        case .preparingToDeal:
+            return "Preparing..."
         case .dealing:
             return "Dealing Cards..."
         case .holding:
