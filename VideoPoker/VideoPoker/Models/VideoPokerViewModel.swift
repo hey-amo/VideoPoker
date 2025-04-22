@@ -16,6 +16,10 @@ class VideoPokerViewModel: ObservableObject {
     @Published var handResult: HandResult?
     @Published var errorMessage: String?
     
+    // Add new properties for animation control
+    @Published var dealingCardIndex: Int = 0
+    private let dealingInterval: TimeInterval = 0.3
+    
     private var deck: [Card] = []
     private let stateHandler: VideoPokerStateHandling
     
@@ -122,8 +126,8 @@ class VideoPokerViewModel: ObservableObject {
         // Transition to dealing state
         gameState = .dealing
         
-        // Continue with deal process (to be implemented)
-        // This will be handled by the dealing state handler in the future
+        // Start dealing animation
+        dealCards()
     }
     
     // MARK: - Helper Methods
@@ -175,5 +179,43 @@ class VideoPokerViewModel: ObservableObject {
         heldCards = []
         handResult = nil
         gameState = .idle
+    }
+    
+    private func dealCards() {
+        guard gameState == .dealing else { return }
+        
+        // Reset dealing index
+        dealingCardIndex = 0
+        
+        // Schedule dealing of each card
+        for index in 0..<5 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + dealingInterval * Double(index)) {
+                self.dealSingleCard(at: index)
+            }
+        }
+        
+        // Transition to holding state after all cards are dealt
+        DispatchQueue.main.asyncAfter(deadline: .now() + dealingInterval * 5) {
+            self.gameState = .holding
+        }
+    }
+    
+    private func dealSingleCard(at index: Int) {
+        guard let card = deck.popLast() else {
+            errorMessage = "Error: No cards left in deck"
+            resetDeck()
+            gameState = .idle
+            return
+        }
+        
+        // Update the dealing index for animation
+        dealingCardIndex = index
+        
+        // Add the card to the hand
+        if index < cards.count {
+            cards[index] = card
+        } else {
+            cards.append(card)
+        }
     }
 }
