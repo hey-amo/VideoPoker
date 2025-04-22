@@ -22,6 +22,7 @@ class VideoPokerViewModel: ObservableObject {
     
     private var deck: [Card] = []
     private let stateHandler: VideoPokerStateHandling
+    private let settings = GameSettings.shared
     
     init(stateHandler: VideoPokerStateHandling = VideoPokerStateHandler()) {
         self.stateHandler = stateHandler
@@ -145,12 +146,14 @@ class VideoPokerViewModel: ObservableObject {
     
     func toggleHold(index: Int) {
         guard gameState == .holding else { return }
-
+        
         if heldCards.contains(index) {
             heldCards.remove(index)
         } else {
             heldCards.insert(index)
         }
+        
+        settings.playHapticFeedback()
     }
 
     func draw() {

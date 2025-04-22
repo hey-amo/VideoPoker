@@ -10,12 +10,26 @@ import SwiftUI
 
 struct VideoPokerView: View {
     @StateObject private var viewModel = VideoPokerViewModel()
+    @State private var showingSettings = false
     
     var body: some View {
         ScrollView(.vertical) {
             VStack(spacing: 20) {
-                GameStatusView(viewModel: viewModel)
-                    .padding(.top)
+                HStack {
+                    GameStatusView(viewModel: viewModel)
+                    
+                    Spacer()
+                    
+                    // Settings button
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "gear")
+                            .foregroundColor(.primary)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top)
                 
                 PayoutTableView(viewModel: viewModel)
                 
@@ -57,6 +71,9 @@ struct VideoPokerView: View {
                 
                 Spacer()
             }
+        }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
         }
     }
 }
