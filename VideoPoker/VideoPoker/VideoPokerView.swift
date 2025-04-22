@@ -130,7 +130,10 @@ struct BetControlsView: View {
 struct CardView: View {
     let card: Card?
     let isBack: Bool
-
+    
+    // Add rotation state
+    @State private var rotation: Double = 0
+    
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 8)
@@ -150,6 +153,16 @@ struct CardView: View {
                 )
                 .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.black))
         }
+        .rotation3DEffect(
+            .degrees(rotation),
+            axis: (x: 0.0, y: 1.0, z: 0.0)
+        )
+        .onChange(of: isBack, initial: false) { newValue, _  in
+            withAnimation(.easeInOut(duration: 0.5)) {
+                rotation += 180
+            }
+        }
+        
     }
 }
 
