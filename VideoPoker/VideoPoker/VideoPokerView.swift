@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct VideoPokerView: View {
-    @StateObject var viewModel = VideoPokerViewModel()
+    @StateObject private var viewModel = VideoPokerViewModel()
     
     var body: some View {
         ScrollView(.vertical) {
@@ -155,7 +155,7 @@ struct CardView: View {
 // MARK: Payout Table View
 
 struct PayoutTableView: View {
-    @StateObject var viewModel = VideoPokerViewModel()
+    @ObservedObject var viewModel: VideoPokerViewModel
     @State private var isPayTableVisible: Bool = true
     
     var body: some View {
