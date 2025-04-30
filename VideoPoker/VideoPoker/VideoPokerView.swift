@@ -10,53 +10,83 @@ import SwiftUI
 
 struct VideoPokerView: View {
     @StateObject private var viewModel = VideoPokerViewModel()
+    @ObservedObject private var router = Router.shared
     
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(spacing: 20) {
-                GameStatusView(viewModel: viewModel)
-                    .padding(.top)
-                
-                PayoutTableView(viewModel: viewModel)
-                
-                CreditsAndBetView(viewModel: viewModel)
-                
-                // Card Row
-                HStack(spacing: 15) {
-                    ForEach(0..<5) { index in
-                        if index < viewModel.cards.count {
-                            CardView(
-                                card: viewModel.cards[index],
-                                isBack: viewModel.gameState == .dealing && index > viewModel.dealingCardIndex
-                            )
-                            .transition(.asymmetric(
-                                insertion: .scale.combined(with: .slide),
-                                removal: .scale
-                            ))
-                            .animation(.easeInOut(duration: 0.3), value: viewModel.dealingCardIndex)
-                        } else {
-                            CardView(card: nil, isBack: true)
-                                .opacity(0.5)
+        VStack(spacing: 0) {
+            TopBarView()
+            
+            ScrollView(.vertical) {
+                VStack(spacing: 20) {
+                    GameStatusView(viewModel: viewModel)
+                        .padding(.top)
+                    
+                    PayoutTableView(viewModel: viewModel)
+                    
+                    CreditsAndBetView(viewModel: viewModel)
+                    
+                    // Card Row
+                    HStack(spacing: 15) {
+                        ForEach(0..<5) { index in
+                            if index < viewModel.cards.count {
+                                CardView(
+                                    card: viewModel.cards[index],
+                                    isBack: viewModel.gameState == .dealing && index > viewModel.dealingCardIndex
+                                )
+                                .transition(.asymmetric(
+                                    insertion: .scale.combined(with: .slide),
+                                    removal: .scale
+                                ))
+                                .animation(.easeInOut(duration: 0.3), value: viewModel.dealingCardIndex)
+                            } else {
+                                CardView(card: nil, isBack: true)
+                                    .opacity(0.5)
+                            }
                         }
                     }
-                }
-                .padding()
-                
-                if viewModel.gameState == .idle {
-                    BetControlsView(viewModel: viewModel)
-                }
-                
-                DealButtonView(viewModel: viewModel)
-                
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
+                    .padding()
+                    
+                    if viewModel.gameState == .idle {
+                        BetControlsView(viewModel: viewModel)
+                    }
+                    
+                    DealButtonView(viewModel: viewModel)
+                    
+                    if let errorMessage = viewModel.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.caption)
+                            .padding(.horizontal)
+                    }
+                    
+                    // Add round indicator
+                    Text("Round \(viewModel.currentRound)/\(viewModel.totalRounds)")
                         .font(.caption)
-                        .padding(.horizontal)
+                        .foregroundColor(.secondary)
+                        .padding(.top)
+                    
+                    Spacer()
                 }
-                
-                Spacer()
             }
+        }
+        .sheet(item: $router.activeModal) { modal in
+            switch modal {
+            case .settings:
+                SettingsView()
+            case .menu:
+                MenuView()
+            }
+        }
+        // Show game over view when game state is .gameOver
+        .sheet(isPresented: .init(
+            get: { viewModel.gameState == .gameOver },
+            set: { _ in }
+        )) {
+            GameOverView(viewModel: viewModel)
+        }
+        // Update router's animation state when dealing
+        .onChange(of: viewModel.gameState) { _, newState in
+            router.isAnimating = (newState == .dealing)
         }
     }
 }
