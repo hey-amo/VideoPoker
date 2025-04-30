@@ -24,6 +24,22 @@ class VideoPokerViewModel: ObservableObject {
     private let stateHandler: VideoPokerStateHandling
     private let settings = GameSettings.shared
     
+    // Add round tracking
+    @Published var currentRound: Int = 1
+    @Published var totalRounds: Int = 3
+    @Published var totalWinnings: Int = 0  // Track cumulative winnings
+    @Published var roundResults: [RoundResult] = []  // Track results of each round
+    
+    // Add a struct to track round results
+    struct RoundResult {
+        let roundNumber: Int
+        let finalHand: [Card]
+        let handRank: HandRank
+        let bet: Int
+        let payout: Int
+        let timestamp: Date
+    }
+    
     init(stateHandler: VideoPokerStateHandling = VideoPokerStateHandler()) {
         self.stateHandler = stateHandler
         resetDeck()
@@ -172,8 +188,28 @@ class VideoPokerViewModel: ObservableObject {
     func evaluateHand() {
         let result = PokerHandEvaluator.evaluate(hand: cards)
         handResult = result
-        credits += result.payoutMultiplier * bet
-        gameState = .resultShown
+        let payout = result.payoutMultiplier * bet
+        credits += payout
+        totalWinnings += payout
+        
+        // Record round result
+        let roundResult = RoundResult(
+            roundNumber: currentRound,
+            finalHand: cards,
+            handRank: result.rank,
+            bet: bet,
+            payout: payout,
+            timestamp: Date()
+        )
+        roundResults.append(roundResult)
+        
+        // Check if this was the final round
+        if currentRound >= totalRounds {
+            gameState = .gameOver
+        } else {
+            gameState = .resultShown
+            currentRound += 1
+        }
     }
 
     func resetHand() {
@@ -220,5 +256,29 @@ class VideoPokerViewModel: ObservableObject {
         } else {
             cards.append(card)
         }
+    }
+    
+    func startNewGame() {
+        credits = 100  // Reset starting credits
+        bet = 1       // Reset to minimum bet
+        currentRound = 1
+        totalWinnings = 0
+        roundResults = []
+        resetHand()
+        gameState = .idle
+    }
+    
+    // Add a computed property for game summary
+    var gameSummary: String {
+        let totalBet = roundResults.reduce(0) { $0 + $1.bet }
+        let netResult = totalWinnings - totalBet
+        
+        return """
+        Game Summary:
+        Rounds Played: \(roundResults.count)/\(totalRounds)
+        Total Bet: \(totalBet)
+        Total Won: \(totalWinnings)
+        Net Result: \(netResult > 0 ? "+" : "")\(netResult)
+        """
     }
 }
