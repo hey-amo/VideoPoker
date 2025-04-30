@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct VideoPokerView: View {
+struct VPV: View {
     @StateObject private var viewModel = VideoPokerViewModel()
     @ObservedObject private var router = Router.shared
     
@@ -333,6 +333,8 @@ struct GameStatusView: View {
     }
 }
 
+/*
 #Preview {
     VideoPokerView()
 }
+*/
