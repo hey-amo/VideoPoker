@@ -27,6 +27,9 @@ struct TopBarView: View {
         }
         .frame(height: 44)
         .background(Color(UIColor.systemBackground))
-        .shadow(radius: 3)
     }
 } 
+
+#Preview {
+    TopBarView()
+}
