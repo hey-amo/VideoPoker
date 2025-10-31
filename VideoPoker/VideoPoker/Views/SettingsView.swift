@@ -10,6 +10,11 @@ struct SettingsView: View {
                 Section(header: Text("Feedback")) {
                     Toggle("Haptic Feedback", isOn: $settings.hapticFeedbackEnabled)
                 }
+                Section(header: Text("Sound/Music")) {
+                    Toggle("Sound Effects", isOn: $settings.sfxEnabled)
+                    Toggle("Music", isOn:
+                            $settings.musicEnabled)
+                }
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
@@ -23,3 +28,7 @@ struct SettingsView: View {
         }
     }
 } 
+
+#Preview {
+    SettingsView()
+}
