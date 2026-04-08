@@ -60,3 +60,6 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+card-game-eg1.png
+card-game-eg2.png
+card-game-eg3.png
